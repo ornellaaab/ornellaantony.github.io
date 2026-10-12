@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Infos — Ornella Antony</title>
+<script>
+  // Apparition de la page en 5s.
+  // Depuis l'accueil, c'est l'accueil lui-même qui affiche cette page par-dessus lui
+  // en fondu (voir index.html) : ici on ne refait donc pas de fondu.
+  // Si on arrive directement sur la page (lien direct, rechargement), fondu depuis le blanc.
+  (function(){
+    let skip = window.self !== window.top;          // affichée dans le fondu de l'accueil
+    try{
+      if(sessionStorage.getItem('infosFromIndex')){ skip = true; sessionStorage.removeItem('infosFromIndex'); }
+    }catch(e){}
+    if(!skip) document.documentElement.classList.add('fade-in');
+  })();
+</script>
+<style>
+
+  /* ----- Liste des trucs à faire : changer velvelyne en tremplin + peut etre changer le n&b ? ----- */
+  @font-face{
+    font-family:'DRKrapka';
+    src: url('typos_site/DRKrapkaRound-BoldUpObl.woff') format('woff');
+    font-weight:400;
+    font-style:normal;
+  }
+  @font-face{
+    font-family:'Velvelyne';
+    src: url('typos_site/Velvelyne-Regular.woff') format('woff');
+    font-weight:400;
+    font-style:normal;
+  }
+  /* Tremplin : light pour les coordonnées, bold au survol.
+     Adapte les noms de fichiers si les tiens sont différents. */
+  @font-face{
+    font-family:'Tremplin';
+    src: url('typos_site/Tremplin-Light.woff') format('woff');
+    font-weight:300;
+    font-style:normal;
+  }
+  @font-face{
+    font-family:'Tremplin';
+    src: url('typos_site/Tremplin-Regular.woff') format('woff');
+    font-weight:400;
+    font-style:normal;
+  }
+  @font-face{
+    font-family:'Tremplin';
+    src: url('typos_site/Tremplin-Bold.woff') format('woff');
+    font-weight:700;
+    font-style:normal;
+  }
+  @font-face{
+    font-family:'Garabosse';
+    src: url('typos_site/Garabosse-Gaillarde.woff') format('woff');
+    font-weight:400;
+    font-style:normal;
+  }
+
+  /* ---------- APPARITION DE LA PAGE (5s) ---------- */
+  html.fade-in body{ animation:pageIn 5s ease both; }
+  @keyframes pageIn{ from{ opacity:0; } }
+
+  :root{
+    /* ---- Typos (à changer ici si besoin) ---- */
+    --serif:'Garabosse', 'EB Garamond', Georgia, serif;
+    --sans:'Velvelyne', 'Helvetica Neue', Arial, sans-serif;
+    --head:'Tremplin', 'Helvetica Neue', Arial, sans-serif;
+    --menu:'DRKrapka', sans-serif;
+
+    /* ---- Couleurs ---- */
+    --brown:#6D2315;
+    --purple:#6C22DE;
+    --cyan:#8ADFFA;
+    --cyan-strong:#5BCEFF;
+    --green:#74E66B;
+
+    /* ---- Flèches (identiques à l'accueil) ---- */
+    --chev-size:10px;
+    --chev-border:2px;
+
+    /* ---- Grille (mesurée sur les maquettes) ---- */
+    --band-left:32vw;        /* début du dégradé bleu vertical */
+    --band-w:30vw;
+    --right-col:47.7vw;      /* « Je suis designeuse graphique… » */
+    --text-col:53.5vw;       /* « Diplômée du DSAA… » et suite */
+    --list-col:59.6vw;       /* liste des missions */
+    --exp-col:49.8vw;        /* expériences */
+    --left-end:39.7vw;       /* bord droit de la colonne formations */
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scrollbar-width:none; }
+  html::-webkit-scrollbar{ display:none; }
+  body{
+    margin:0;
+    background:#fff;
+    color:var(--brown);
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  a{ color:inherit; text-decoration:none; }
+  p{ margin:0; }
+  .u{
+    text-decoration:underline;
+    text-decoration-thickness:1px;
+    text-underline-offset:0.18em;
+  }
+
+  /* ---------- PASSAGE EN NOIR ET BLANC au survol du menu ou des coordonnées ---------- */
+  .fx{ transition:filter .5s ease; }
+  body:has(.menu:hover, .coords:hover) .fx{ filter:grayscale(1); }
+
+  /* ---------- DÉGRADÉ BLEU VERTICAL ---------- */
+  .band{
+    position:fixed;
+    top:0; bottom:0;
+    left:var(--band-left);
+    width:var(--band-w);
+    pointer-events:none;
+    z-index:0;
+    background:linear-gradient(to right,
+      rgba(142,224,250,0)   0%,
+      rgba(142,224,250,.3)  17%,
+      rgba(142,224,250,1)   34%,
+      rgba(142,224,250,1)   38%,
+      rgba(142,224,250,.65) 52%,
+      rgba(142,224,250,.35) 68%,
+      rgba(142,224,250,.12) 86%,
+      rgba(142,224,250,0)   100%);
+  }
+
+  /* ---------- MENU (fixe) ---------- */
+  /* Le menu reprend exactement la mise en page de celui de l'accueil
+     (mêmes marges, même écart, même centrage) : les mots communs
+     (mouche.collective, trobairitz, D15) tombent pile au même endroit
+     pendant le fondu enchaîné. « INFOS » et « contact » de l'accueil sont
+     gardés invisibles pour réserver leur place ; « projets » prend la place de « contact ». */
+  .menu{
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:20;
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:2rem;
+    padding:calc(2rem + env(safe-area-inset-top,0px)) 6rem 1rem;
+    pointer-events:none;         /* seuls les mots réagissent à la souris */
+  }
+  .menu > a, .menu .slot > a{ pointer-events:auto; }
+  .menu .ghost{ visibility:hidden; pointer-events:none; }
+  .menu .slot{ position:relative; }
+  .menu .slot > a{ position:absolute; top:0; right:0; white-space:nowrap; }
+  .menu::before{                 /* halo blanc + flou sous le menu, pour la lisibilité */
+    content:"";
+    position:absolute;
+    left:50%;
+    top:calc(env(safe-area-inset-top,0px) + 1rem);
+    width:min(44rem, 92vw);
+    height:3.6rem;
+    transform:translateX(-50%);
+    z-index:-1;
+    background:rgba(255,255,255,.55);
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    -webkit-mask-image:radial-gradient(ellipse closest-side, #000 45%, transparent 100%);
+    mask-image:radial-gradient(ellipse closest-side, #000 45%, transparent 100%);
+    pointer-events:none;
+  }
+  .menu a, .menu .ghost{
+    padding:.4rem;
+    font-family:var(--menu);
+    font-size:1rem;
+    color:#fff;
+    -webkit-text-stroke:0.9px #771B0D;
+    transition:color .2s ease, -webkit-text-stroke-color .2s ease;
+  }
+  .menu a:hover, .menu a:focus-visible{
+    color:#771B0D;
+    -webkit-text-stroke:2px var(--cyan-strong);
+    paint-order:stroke fill;    /* le contour bleu passe derrière la lettre marron */
+  }
+
+  /* ---------- COORDONNÉES (fixes, en bas à gauche) ---------- */
+  .coords{
+    position:fixed;
+    left:3.6vw;
+    bottom:3.4vh;
+    z-index:20;
+    font-family:var(--head);
+    font-weight:300;
+    font-size:clamp(.95rem, 1.8vw, 1.5rem);
+    line-height:1.45;
+    font-style:normal;
+    color:var(--green);
+  }
+  .coords::before{               /* flou sous le bloc pour lire pendant le défilement */
+    content:"";
+    position:absolute;
+    inset:-1.4rem -2rem;
+    z-index:-1;
+    background:rgba(255,255,255,.45);
+    -webkit-backdrop-filter:blur(8px);
+    backdrop-filter:blur(8px);
+    /* bords adoucis sur les 4 côtés */
+    -webkit-mask-image:
+      linear-gradient(to right, transparent, #000 1.6rem, #000 calc(100% - 1.6rem), transparent),
+      linear-gradient(to bottom, transparent, #000 1.2rem, #000 calc(100% - 1.2rem), transparent);
+    -webkit-mask-composite:source-in;
+    mask-image:
+      linear-gradient(to right, transparent, #000 1.6rem, #000 calc(100% - 1.6rem), transparent),
+      linear-gradient(to bottom, transparent, #000 1.2rem, #000 calc(100% - 1.2rem), transparent);
+    mask-composite:intersect;
+    pointer-events:none;
+  }
+  .coords p{ margin:0; }
+  .coords a{
+    text-decoration:underline;
+    text-decoration-thickness:1px;
+    text-underline-offset:0.15em;
+  }
+  .coords a:hover, .coords a:focus-visible{ font-weight:700; }
+
+  /* ---------- CONTENU ---------- */
+  main{
+    position:relative;
+    z-index:1;                 /* le texte passe au-dessus du dégradé */
+    padding:31vh 0 7vh;        /* bas : les crédits terminent la page */
+  }
+
+  /* ----- Présentation ----- */
+  .bio{
+    font-family:var(--serif);
+    font-size:clamp(1.05rem, 1.9vw, 1.75rem);
+    line-height:1.36;
+  }
+  .lead{
+    position:relative;
+    z-index:1;
+    margin-left:var(--right-col);
+    width:27vw;
+  }
+  .portrait{
+    position:relative;
+    z-index:0;                 /* l'image passe sous la fin du texte, comme sur la maquette */
+    margin:-0.3em 0 0 calc(var(--right-col) - 2.2vw);
+    width:27.4vw;
+    aspect-ratio:375 / 205;
+    background:#d9d9d9;
+    overflow:hidden;
+  }
+  .portrait img{ display:block; width:100%; height:100%; object-fit:cover; }
+
+  /* Texte en dégradé : violet → bleu clair, du haut vers le bas */
+  .story{
+    margin:2.4em 0 0 var(--text-col);
+    width:37vw;
+    color:var(--purple);
+    background:linear-gradient(to bottom,
+      #6C22DE 0%, #6C22DE 27%,
+      #6F60E6 45%, #7C9AEE 63%, #84CCF6 80%, #8ADFFA 90%, #8ADFFA 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .story p{ margin-bottom:1.36em; }
+  .story .small{
+    margin-top:2.4em;
+    margin-bottom:0;
+    width:27vw;
+    font-size:.72em;
+    line-height:1.85;
+  }
+
+  /* bouton « + » */
+  .more{
+    margin-left:.3em;
+    padding:0 .1em;
+    border:0;
+    background:none;
+    font:inherit;
+    font-size:1.5em;
+    line-height:1;
+    color:var(--cyan);
+    -webkit-text-fill-color:var(--cyan);
+    text-decoration:underline;
+    text-decoration-thickness:1.5px;
+    text-underline-offset:.12em;
+    cursor:pointer;
+    vertical-align:-.08em;
+    transition:transform .3s ease;
+  }
+  .more:hover{ transform:scale(1.15); }
+
+  /* liste des missions : se déplie au clic sur « + » */
+  .missions{
+    display:grid;
+    grid-template-rows:0fr;
+    opacity:0;
+    margin-left:var(--list-col);
+    transition:grid-template-rows .6s ease, opacity .6s ease, margin-top .6s ease;
+  }
+  .missions.is-open{
+    grid-template-rows:1fr;
+    opacity:1;
+    margin-top:1.6em;
+  }
+  .missions > ul{
+    overflow:hidden;
+    min-height:0;
+    margin:0;
+    padding:0;
+    list-style:none;
+    font-size:.72em;
+    line-height:1.4;
+    width:max-content;
+    background:linear-gradient(to bottom, #8ADFFA 0%, #6D2315 62%, #6D2315 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+
+  /* ----- Titres de section ----- */
+  .section-title{
+    margin:0 0 1.9em;
+    font-family:var(--head);
+    font-weight:400;
+    font-size:clamp(.95rem, 1.5vw, 1.3rem);
+    letter-spacing:.01em;
+    color:var(--brown);
+    -webkit-text-stroke:0.45em var(--cyan);
+    paint-order:stroke fill;
+    text-shadow:0 0 4px var(--cyan);
+  }
+
+  /* ----- Formations (colonne de gauche, alignée à droite) ----- */
+  .formations{
+    margin:24vh 0 0 2.8vw;
+    width:calc(var(--left-end) - 2.8vw);
+    text-align:right;
+  }
+  .school{
+    font-family:var(--serif);
+    font-size:clamp(.95rem, 1.5vw, 1.3rem);
+    margin-bottom:1.1em;
+  }
+  .f-row{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    align-items:baseline;
+    column-gap:1rem;
+    margin-bottom:1.3rem;
+  }
+  .f-row .school{ margin-bottom:0; }
+  .f-row.has-school{ margin-bottom:1.4rem; }
+  .year{
+    font-family:var(--sans);
+    font-size:clamp(.6rem, .8vw, .75rem);
+    text-align:left;
+  }
+  .degree{
+    font-family:var(--sans);
+    font-size:clamp(.82rem, 1.27vw, 1.1rem);
+    line-height:1.4;
+  }
+  .desc{
+    font-family:var(--sans);
+    font-size:clamp(.72rem, 1.1vw, .95rem);
+    line-height:1.85;
+    opacity:.85;
+  }
+
+  /* ----- Expériences (colonne de droite) ----- */
+  .experiences{
+    margin:40vh 0 0 var(--exp-col);
+    width:calc(92vw - var(--exp-col));
+  }
+  .experiences .section-title{ margin-bottom:1.6em; }
+  .exp{ margin-bottom:1.7rem; }
+  .exp-head{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:baseline;
+    column-gap:1.5rem;
+    font-family:var(--sans);
+    font-size:clamp(.82rem, 1.32vw, 1.15rem);
+    line-height:1.4;
+  }
+  .exp-head .role{ font-family:var(--serif); }
+  .exp .desc{ max-width:34vw; }
+
+  /* ----- Crédits typographiques (fin de page) ----- */
+  .credits{
+    margin:24vh 0 0 var(--exp-col);
+    font-family:var(--sans);
+    font-size:clamp(.6rem, .7vw, .7rem);
+    line-height:2.1;
+    color:var(--brown);
+  }
+  .credits a, .credits .u{
+    text-decoration:underline;
+    text-decoration-thickness:1px;
+    text-underline-offset:.15em;
+  }
+  .credits a:hover{ color:var(--purple); }
+
+  /* ---------- FLÈCHE VERTICALE (identique à l'accueil) ---------- */
+  .scrollbar{
+    position:fixed;
+    right:1.2rem;
+    top:0; bottom:0;
+    width:3rem;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:1.5rem 0;
+    pointer-events:none;
+    z-index:10;
+  }
+  .scrollbar .chevron-top,
+  .scrollbar .chevron-bottom{
+    width:var(--chev-size);
+    height:var(--chev-size);
+    flex-shrink:0;
+    position:relative;
+    z-index:1;
+  }
+  .scrollbar .chevron-top{
+    border-top:var(--chev-border) solid #771B0D;
+    border-left:var(--chev-border) solid #771B0D;
+    transform:rotate(45deg);
+  }
+  .scrollbar .chevron-bottom{
+    border-bottom:var(--chev-border) solid #37E957;
+    border-right:var(--chev-border) solid #37E957;
+    transform:rotate(45deg);
+  }
+  .scrollbar .line{
+    flex:1;
+    width:var(--chev-border);
+    background:linear-gradient(to bottom, #771B0D, #37E957);
+    margin-top:-9px;
+    margin-bottom:-9px;
+  }
+
+  /* ---------- FLÈCHE DIAGONALE (coin haut gauche → image, suit l'image au scroll) ---------- */
+  .arrow-start{                  /* pointe bleue de la flèche : retour à l'accueil */
+    position:fixed;
+    left:3.6vw;
+    top:5.6vh;
+    width:48px; height:48px;
+    margin:-24px 0 0 -24px;      /* zone cliquable centrée sur la pointe */
+    z-index:21;
+    border-radius:50%;
+  }
+  .diag-arrow{
+    position:fixed;
+    left:0; top:0;
+    width:0; height:0;
+    transform-origin:0 50%;
+    pointer-events:none;
+    z-index:10;
+  }
+  .diag-arrow .line{
+    position:absolute;
+    left:0; right:0;
+    top:calc(var(--chev-border) / -2);
+    height:var(--chev-border);
+    background:linear-gradient(to right, #5BCEFF, #761AE7);
+  }
+  .diag-arrow .head-left,
+  .diag-arrow .head-right{
+    position:absolute;
+    top:calc(var(--chev-size) / -2);
+    width:var(--chev-size);
+    height:var(--chev-size);
+  }
+  .diag-arrow .head-left{
+    left:calc(var(--chev-size) * 0.207);
+    border-left:var(--chev-border) solid #5BCEFF;
+    border-bottom:var(--chev-border) solid #5BCEFF;
+    transform:rotate(45deg);
+  }
+  .diag-arrow .head-right{
+    right:calc(var(--chev-size) * 0.207);
+    border-top:var(--chev-border) solid #761AE7;
+    border-right:var(--chev-border) solid #761AE7;
+    transform:rotate(45deg);
+  }
+
+  :focus-visible{ outline:2px solid #000; outline-offset:2px; }
+
+  /* ---------- RESPONSIVE : une seule colonne ---------- */
+  @media (max-width: 820px){
+    .band{ left:-8vw; width:24vw; }
+    .menu{ padding:calc(1.5rem + env(safe-area-inset-top,0px)) 1.2rem 1rem; gap:1rem; justify-content:flex-start; }
+    main{ padding:6rem 3.4rem 10rem 2.6rem; }
+    .lead, .portrait, .story, .story .small, .missions,
+    .formations, .experiences{ margin-left:0; width:auto; }
+    .bio{ font-size:1.15rem; }
+    .portrait{ width:100%; }
+    .formations{ margin-top:6rem; text-align:left; }
+    .f-row{ grid-template-columns:4.6rem 1fr; }
+    .experiences{ margin-top:6rem; }
+    .exp .desc{ max-width:none; }
+    .credits{ margin:5rem 0 0; font-size:.65rem; }
+    .degree, .exp-head{ font-size:.9rem; }
+    .desc{ font-size:.8rem; line-height:1.6; }
+    .year{ font-size:.65rem; }
+    .coords{ left:1rem; bottom:1rem; font-size:.85rem; }
+    .scrollbar{ right:0.3rem; width:1.4rem; }
+    .diag-arrow, .arrow-start{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="band fx" aria-hidden="true"></div>
+
+<nav class="menu" aria-label="Menu principal">
+  <span class="ghost" aria-hidden="true">INFOS</span>
+  <span class="slot"><span class="ghost" aria-hidden="true">contact</span><a href="index.html">projets</a></span>
+  <a href="https://www.instagram.com/mouche.collective/">mouche.collective</a>
+  <a href="#">trobairitz</a>
+  <a href="https://www.dsaa-numerique-estienne.fr/">D15</a>
+</nav>
+
+<address class="coords">
+  <p><a href="mailto:ornellaantony.pro@gmail.com">ornellaantony.pro@gmail.com</a></p>
+  <p><a href="https://www.instagram.com/ornellaaab/">@ornellaaab</a></p>
+  <p>Paris</p>
+</address>
+
+<a class="arrow-start" href="index.html" aria-label="Retour à l'accueil"></a>
+
+<main class="fx">
+
+  <!-- ===================== PRÉSENTATION ===================== -->
+  <section class="bio" aria-label="Présentation">
+    <p class="lead">Je suis designeuse graphique ;<br><span class="u">créatrice visuelle et technologique.</span></p>
+
+    <figure class="portrait" id="portrait">
+      <img src="images/infos/photo-profil_site02.webp" alt="portrait">
+      -->
+    </figure>
+
+    <div class="story">
+      <p>Diplômée du DSAA DCN (grade master) de l’École Estienne, je me définis aussi comme conceptrice d’expériences multimédias, VJ, UX/UI designeuse et designeuse-médiatrice.</p>
+      <p>J’explore la vidéo, la narration et l’interactivité, incluant le plus possible les utilisateur..ices et spectateur..ices dans la création.</p>
+      <p>J’aime créer des dispositifs communicants mêlant différents outils et techniques, dans des environnements physiques comme virtuels.</p>
+      <p class="small">Évoluant dans des projets co-créatifs, 
+        je peux faire<button class="more" type="button" aria-expanded="false" aria-controls="missions" aria-label="Voir la liste">+</button></p>
+    </div>
+
+    <div class="missions" id="missions">
+      <ul>
+        <li>coordination de projets artistiques,</li>
+        <li>graphisme,</li>
+        <li>montage,</li>
+        <li>scénographie digitale,</li>
+        <li>VJing,</li>
+        <li>recherche iconographique,</li>
+        <li>web-design,</li>
+        <li>habillage visuel,</li>
+        <li>motion design,</li>
+        <li>direction artistique,</li>
+        <li>curation</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== FORMATIONS ===================== -->
+  <section class="formations" aria-labelledby="t-formations">
+    <h2 class="section-title" id="t-formations">Formations</h2>
+
+    <p class="school"><span class="u">école estienne</span></p>
+
+    <div class="f-row">
+      <span class="year">2024-2026</span>
+      <div>
+        <p class="degree">DSAA DCN</p>
+        <p class="desc">Design et Création en environnement Numérique</p>
+      </div>
+    </div>
+
+    <div class="f-row">
+      <span class="year">2019-2024</span>
+      <div>
+        <p class="degree">DNMADE NUMÉRIQUE</p>
+        <p class="desc">Graphisme numérique, option motion design</p>
+      </div>
+    </div>
+
+    <div class="f-row has-school">
+      <span class="year">2017-2019</span>
+      <p class="school"><span class="u">lycée des arènes</span></p>
+    </div>
+
+    <div class="f-row">
+      <span class="year"></span>
+      <div>
+        <p class="degree">BAC STD2A</p>
+        <p class="desc">Science et Technologie du Design et des Arts Appliqués</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== EXPÉRIENCES ===================== -->
+  <section class="experiences" aria-labelledby="t-experiences">
+    <h2 class="section-title" id="t-experiences">Expériences</h2>
+
+    <article class="exp">
+      <p class="exp-head"><span>Canal en lumières, Montferrand (11) - <span class="role u">médiation culturelle</span></span><span class="year">2026</span></p>
+      <p class="desc">Accueil et accompagnement du public, veille au bon fonctionnement<br>des dispositifs interactifs.</p>
+    </article>
+
+    <article class="exp">
+      <p class="exp-head"><span>CENT-QUATRE, Paris - <span class="role u">exposition</span></span><span class="year"></span></p>
+      <p class="desc">Mise en espace du manifeste du collectif Mouche, abécédaire sur pellicule.</p>
+    </article>
+
+    <article class="exp">
+      <p class="exp-head"><span>Lab-ah, GHU de Paris - <span class="role u">atelier</span></span><span class="year">2025</span></p>
+      <p class="desc">Conception d’un dispositif d’apaisement intéractif.</p>
+    </article>
+
+    <article class="exp">
+      <p class="exp-head"><span>Bulac, Inalco, Paris - <span class="role u">exposition</span></span></p>
+      <p class="desc">Élaboration de l’exposition « Systèmes, comment s’écrit demain? »<br>et conception graphique d’une écriture fictionnelle.</p>
+    </article>
+
+    <article class="exp">
+      <p class="exp-head"><span>Iregular, Montréal (CA) - <span class="role u">stage dans l’art numérique</span></span><span class="year"></span></p>
+      <p class="desc">Création de contenu, captation réelle et montage.</p>
+    </article>
+
+    <article class="exp">
+      <p class="exp-head"><span>World+, Paris - <span class="role u">stage en direction artistique, image, médiation et set design</span></span><span class="year">2023</span></p>
+      <p class="desc">Identité visuelle pour une exposition interne.</p>
+    </article>
+
+    <article class="exp">
+      <p class="exp-head"><span>Radio France, Paris - <span class="role u">stage en scénographie digitale</span></span><span class="year">2022</span></p>
+      <p class="desc">VJing, création et diffusion d’animations pour un orchestre.</p>
+    </article>
+  </section>
+
+  <!-- ===================== CRÉDITS TYPOGRAPHIQUES ===================== -->
+  <!-- Remplace chaque href="#" par l'adresse de la page de la typo -->
+  <footer class="credits" aria-label="Crédits typographiques">
+    <p>Crédits typographiques • <a href="https://typotheque.genderfluid.space/" target="_blank" rel="noopener">Typothèque BBB</a> &amp; cie</p>
+    <p><span class="u">Tremplin</span> de Benjamin Dott,</p>
+    <p><span class="u">Garabosse Gaillarde</span> de Titouan Collet, Clara Coutanceau &amp; Paul Fleury,</p>
+    <p><span class="u">Velvelyne</span> de Mariel Nils, Manon Van der Borght et al.,</p>
+    <p><span class="u">DinDong</span> de Peter Wiegel,</p>
+    <p><span class="u">Dr Krapka Round</span> de Dmitry Rastvortsev</p>
+    <p><span>...</p>
+    <p><span>Site développé avec l'aide de Claude.ai</p>
+  </footer>
+
+</main>
+
+<div class="scrollbar fx" aria-hidden="true">
+  <div class="chevron-top"></div>
+  <div class="line"></div>
+  <div class="chevron-bottom"></div>
+</div>
+
+<div class="diag-arrow fx" aria-hidden="true">
+  <div class="line"></div>
+  <div class="head-left"></div>
+  <div class="head-right"></div>
+</div>
+
+<script>
+  // Quand la page est affichée dans le fondu de l'accueil, ses liens ouvrent
+  // la page entière (et non l'intérieur du cadre).
+  if(window.self !== window.top){
+    document.querySelectorAll('a[href]').forEach(a => a.target = '_top');
+  }
+
+  // ---------- « + » : déplie / replie la liste des missions ----------
+  const moreBtn  = document.querySelector('.more');
+  const missions = document.getElementById('missions');
+  moreBtn.addEventListener('click', () => {
+    const open = missions.classList.toggle('is-open');
+    moreBtn.setAttribute('aria-expanded', open);
+  });
+  // la flèche suit l'image pendant que la liste s'ouvre
+  missions.addEventListener('transitionend', requestPlace);
+
+  // ---------- Flèche diagonale : part du coin haut gauche, sa pointe suit l'image ----------
+  const arrow    = document.querySelector('.diag-arrow');
+  const start    = document.querySelector('.arrow-start');
+  const portrait = document.getElementById('portrait');
+
+  function placeArrow(){
+    if(getComputedStyle(arrow).display === 'none') return;
+    const s = start.getBoundingClientRect();
+    const p = portrait.getBoundingClientRect();
+    const x1 = s.left + s.width / 2, y1 = s.top + s.height / 2;
+    const x2 = p.left - window.innerWidth * 0.036;   // pointe : un peu à gauche de l'image…
+    const y2 = p.top + p.height * 0.44;               // …vers le milieu
+    const dx = x2 - x1, dy = y2 - y1;
+    arrow.style.left = x1 + 'px';
+    arrow.style.top = y1 + 'px';
+    arrow.style.width = Math.hypot(dx, dy) + 'px';
+    arrow.style.transform = 'rotate(' + Math.atan2(dy, dx) + 'rad)';
+  }
+
+  let ticking = false;
+  function requestPlace(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { placeArrow(); ticking = false; });
+  }
+  window.addEventListener('scroll', requestPlace, { passive:true });
+  window.addEventListener('resize', requestPlace);
+  window.addEventListener('load', placeArrow);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(placeArrow);
+  placeArrow();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projet — Ornella Antony</title>
+<style>
+
+  @font-face{
+    font-family:'DRKrapka';
+    src: url('typos_site/DRKrapkaRound-BoldUpObl.woff') format('woff');
+    font-weight:400;
+    font-style:normal;
+  }
+  @font-face{
+    font-family:'Velvelyne';
+    src: url('typos_site/Velvelyne-Regular.woff') format('woff');
+    font-weight:400;
+    font-style:normal;
+  }
+  @font-face{
+    font-family:'Tremplin';
+    src: url('typos_site/Tremplin-Regular.woff') format('woff');
+    font-weight:400;
+    font-style:normal;
+  }
+    }
+  @font-face{
+    font-family:'TremplinLight';
+    src: url('typos_site/Tremplin-Light.woff') format('woff');
+    font-weight:400;
+    font-style:normal;
+  }
+  @font-face{
+    font-family:'Garabosse';
+    src: url('typos_site/Garabosse-Gaillarde.woff') format('woff');
+    font-weight:400;
+    font-style:normal;
+  }
+  @font-face{
+    font-family:'Dindong';
+    src: url('typos_site/DINdong.woff') format('woff');
+    font-weight:400;
+    font-style:normal;
+  }
+  @font-face{
+    font-family:'Feroniapi';
+    src: url('typos_site/Feroniapi-MediumItalic.woff') format('woff');
+    font-weight:400;
+    font-style:normal;
+  }
+  @font-face{
+    font-family:'GapSans';
+    src: url('typos_site/gapsans-webfont.woff2') format('woff2');
+    font-weight:400;
+    font-style:normal;
+  }
+
+  :root{
+    --chev-size:10px;        /* taille commune des chevrons de toutes les flèches */
+    --chev-border:2px;       /* épaisseur commune des chevrons et des traits */
+    --cyan:#8EE0FA;          /* bleu des bords et des mots-clés */
+    --brown:#771B0D;
+
+    /* ---- Grille de la page (mesurée sur l'image de référence) ---- */
+    --split-x:71.1vw;        /* flèche verticale = bord droit des images */
+    --gal-top:11.8vh;        /* haut du cadre image */
+    --gal-h:77.2vh;          /* hauteur du cadre image (bas à 89vh) */
+    --side-left:74.8vw;      /* colonne de texte à droite */
+    --side-w:21.2vw;
+
+    /* flèche horizontale du haut : début (pointe bleue = retour) et fin (pointe violette = projet suivant) */
+    --hl-left:3.4vw;
+    --hl-right:97vw;
+    --hl-top:7.3vh;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    height:100vh;
+    overflow:hidden;           /* la page ne défile jamais : seul le bandeau d'images défile */
+    background:#fff;
+    padding-top: env(safe-area-inset-top,0px);
+    padding-bottom: env(safe-area-inset-bottom,0px);
+  }
+  a{ color:inherit; text-decoration:none; }
+
+  /* ---------- RETOUR / PROJET SUIVANT : les deux pointes de la flèche du haut ---------- */
+  .hl-link{
+    position:fixed;
+    top:var(--hl-top);
+    width:44px; height:44px;
+    margin:-22px 0 0 -22px;      /* zone cliquable centrée sur la pointe */
+    z-index:11;
+    border-radius:50%;
+  }
+  .hl-link.back{ left:var(--hl-left); }
+  .hl-link.next{ left:var(--hl-right); }
+
+  /* ---------- DÉGRADÉS BLEUS SUR LES BORDS ---------- */
+  .edge{
+    position:fixed;
+    top:0; bottom:0;
+    pointer-events:none;
+    z-index:4;                 /* au-dessus des images et du titre, comme sur la référence */
+  }
+  .edge-left{
+    left:0;
+    width:11vw;
+    background:linear-gradient(to right,
+      rgba(142,224,250,1) 0,
+      rgba(142,224,250,.6) 2.5vw,
+      rgba(142,224,250,.25) 6vw,
+      rgba(142,224,250,0) 11vw);
+  }
+  .edge-right{
+    right:0;
+    width:4.5vw;
+    background:linear-gradient(to left,
+      rgba(142,224,250,1) 0,
+      rgba(142,224,250,.45) 1.6vw,
+      rgba(142,224,250,0) 4.5vw);
+  }
+
+  /* ---------- MOTS-CLÉS (sous les images, calés à droite) ---------- */
+  .tags{
+    position:fixed;
+    right:calc(100vw - var(--split-x) + 2.4vw);
+    bottom:5vh;
+    margin:0;
+    font-family:'Velvelyne', sans-serif;
+    font-size:clamp(.8rem, 1.15vw, 1.1rem);
+    letter-spacing:.02em;
+    color:var(--cyan);
+    white-space:nowrap;
+  }
+
+  /* ---------- GALERIE D'IMAGES (défilement horizontal) ---------- */
+  .gallery-wrap{
+    position:fixed;
+    left:0;                    /* le cadre part du bord gauche, sous le dégradé */
+    top:var(--gal-top);
+    width:var(--split-x);
+    height:var(--gal-h);
+  }
+  .gallery{
+    display:flex;
+    gap:0;                     /* aucune marge entre les images */
+    height:100%;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scrollbar-width:none;
+  }
+  .gallery::-webkit-scrollbar{ display:none; }
+  .slide{
+    flex:0 0 auto;
+    height:100%;
+    margin:0;
+  }
+  .slide img{
+    display:block;
+    height:100%;
+    width:auto;
+    max-width:none;
+  }
+  .slide.placeholder{
+    width:var(--split-x);      /* = largeur du cadre */
+    background:#d9d9d9;
+    display:grid;
+    place-items:center;
+    font-family:'Tremplin', sans-serif;
+    font-weight:700;
+    letter-spacing:.05em;
+  }
+
+  /* ---------- VIDÉO YOUTUBE DANS LE CADRE ---------- */
+    .slide.video{
+    aspect-ratio:var(--ratio, 16/9);   /* largeur calculée depuis la hauteur, comme une image */
+  }
+  .yt{
+    position:relative;
+    width:100%;
+    height:100%;                        /* la vidéo prend toute la hauteur du cadre */
+    background:#000;
+    overflow:hidden;
+  }
+  .yt iframe{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    border:0;
+  }
+  /* Vignette + bouton lecture : la vraie vidéo ne se charge qu'au clic */
+  .yt-play{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    border:0; padding:0;
+    background:#000 center / cover no-repeat;
+    cursor:pointer;
+  }
+  .yt-play::before{
+    content:"";
+    position:absolute; left:50%; top:50%;
+    width:4.2rem; height:4.2rem;
+    margin:-2.1rem 0 0 -2.1rem;
+    border-radius:50%;
+    background:rgba(255,255,255,.92);
+    box-shadow:0 0 0 2px var(--brown);
+    transition:transform .2s ease;
+  }
+  .yt-play::after{
+    content:"";
+    position:absolute; left:50%; top:50%;
+    width:1.2rem; height:1.4rem;
+    margin:-.7rem 0 0 -.45rem;
+    background:var(--brown);
+    clip-path:polygon(0 0, 100% 50%, 0 100%);
+  }
+  .yt-play:hover::before{ transform:scale(1.08); }
+
+  /* ---------- TITRE DU PROJET ---------- */
+  h1{
+    position:absolute;
+    left:5.6vw;
+    bottom:-2vh;
+    z-index:3;
+    margin:0;
+    font-family:'DRKrapka', sans-serif;
+    font-weight:normal;
+    font-size:clamp(3.5rem, 4.2vw, 3.6rem);
+    line-height:1.1;
+    color:#fff;
+    -webkit-text-stroke:0.3em #000;
+    paint-order:stroke fill;
+    pointer-events:none;
+  }
+
+  /* ---------- COLONNE DE DROITE : texte + informations ---------- */
+  .side{
+    position:fixed;
+    left:var(--side-left);
+    width:var(--side-w);
+    top:12.4vh;
+    bottom:11vh;               /* le bas des infos s'aligne sur le bas du cadre image */
+    display:flex;
+    flex-direction:column;
+    gap:1.5rem;
+  }
+  .texts{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;           /* simple sécurité si un texte est trop long */
+    scrollbar-width:none;
+    display:grid;              /* tous les textes sont empilés au même endroit */
+    align-content:start;
+  }
+  .texts::-webkit-scrollbar{ display:none; }
+  .text{
+    grid-area:1 / 1;
+    opacity:0;
+    transition:opacity .6s ease;
+    pointer-events:none;
+    font-family:'Garabosse', serif;
+    font-size:clamp(0.7rem, 1.3vw, 1.6rem);
+    line-height:1.7;
+    color:#5f4449;
+  }
+  .text.is-active{ opacity:1; pointer-events:auto; }
+  .text p{ margin:0 0 1em; }
+  .text p{ margin:0 0 1em; white-space:pre-line; }
+
+  .infos{
+    flex:0 0 auto;
+    font-family:'DinDong', sans-serif;
+    font-size:clamp(.66rem, .85vw, .8rem);
+    line-height:1.25;
+    color:#7a3526;
+  }
+  .infos p{ margin:0 0 1em; }
+  .infos p:last-child{ margin-bottom:0; }
+  /* noms des ami·es en lien : pas soulignés, violets au survol */
+  .infos a.friend{
+    color:inherit;
+    text-decoration:none;
+    transition:color .2s ease;
+  }
+  .infos a.friend:hover, .infos a.friend:focus-visible{ color:#761AE7; }
+
+  /* ---------- FLÈCHE VERTICALE (marron → vert) ---------- */
+  .vline{
+    position:fixed;
+    left:calc(var(--split-x) - 1.5rem);
+    top:0; bottom:0;
+    width:3rem;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:2.6vh 0;
+    pointer-events:none;
+    z-index:10;
+  }
+  .vline .chevron-top,
+  .vline .chevron-bottom{
+    width:var(--chev-size);
+    height:var(--chev-size);
+    flex-shrink:0;
+    position:relative;
+    z-index:1;
+  }
+  .vline .chevron-top{
+    border-top:var(--chev-border) solid var(--brown);
+    border-left:var(--chev-border) solid var(--brown);
+    transform:rotate(45deg);
+  }
+  .vline .chevron-bottom{
+    border-bottom:var(--chev-border) solid #37E957;
+    border-right:var(--chev-border) solid #37E957;
+    transform:rotate(45deg);
+  }
+  .vline .line{
+    flex:1;
+    width:var(--chev-border);
+    background:linear-gradient(to bottom, var(--brown), #37E957);
+    margin-top:-9px;
+    margin-bottom:-9px;
+  }
+
+  /* ---------- FLÈCHE HORIZONTALE (bleu → violet), en haut de la page ---------- */
+  .hline{
+    position:fixed;
+    left:var(--hl-left);
+    top:var(--hl-top);
+    width:calc(var(--hl-right) - var(--hl-left));
+    height:0;
+    pointer-events:none;
+    z-index:10;
+  }
+  .hline .line{
+    position:absolute;
+    left:0; right:0;
+    top:calc(var(--chev-border) / -2);
+    height:var(--chev-border);
+    background:linear-gradient(to right, #5BCEFF, #761AE7);
+  }
+  .hline .head-left,
+  .hline .head-right{
+    position:absolute;
+    top:calc(var(--chev-size) / -2);
+    width:var(--chev-size);
+    height:var(--chev-size);
+  }
+  .hline .head-left{
+    left:calc(var(--chev-size) * 0.207);
+    border-left:var(--chev-border) solid #5BCEFF;
+    border-bottom:var(--chev-border) solid #5BCEFF;
+    transform:rotate(45deg);
+  }
+  .hline .head-right{
+    right:calc(var(--chev-size) * 0.207);
+    border-top:var(--chev-border) solid #761AE7;
+    border-right:var(--chev-border) solid #761AE7;
+    transform:rotate(45deg);
+  }
+
+  :focus-visible{ outline:2px solid #000; outline-offset:2px; }
+
+  /* ---------- RESPONSIVE : images en haut, texte dessous ---------- */
+  @media (max-width: 820px){
+    :root{ --hl-left:1rem; --hl-right:calc(100vw - 1rem); --hl-top:1.7rem; }
+    .edge-left{ width:8vw; }
+    .edge-right{ width:4vw; }
+    .tags{ right:1rem; bottom:auto; top:calc(3.4rem + 50vh + 0.9rem); font-size:.7rem; }
+    .gallery-wrap{ left:0; width:100vw; top:3.4rem; height:50vh; }
+    .slide.placeholder{ width:100vw; }
+    h1{ left:1rem; font-size:2rem; bottom:-1.5vh; }
+    .side{ left:1rem; right:1rem; width:auto; top:calc(3.4rem + 50vh + 2.6rem); bottom:1rem; gap:1rem; }
+    .text{ font-size:.9rem; }
+    .vline{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<a class="hl-link back" href="index.html" aria-label="Retour à l'accueil" title="retour"></a>
+<a class="hl-link next" id="next" href="#" aria-label="Projet suivant" title="projet suivant"></a>
+
+<p class="tags" id="tags"></p>
+
+<section class="gallery-wrap" aria-label="Images du projet">
+  <div class="gallery" id="gallery" tabindex="0"></div>
+  <h1 id="title">Nom du projet</h1>
+</section>
+
+<div class="side">
+  <div class="texts" id="texts" aria-live="polite"></div>
+  <div class="infos" id="infos"></div>
+</div>
+
+<div class="edge edge-left" aria-hidden="true"></div>
+<div class="edge edge-right" aria-hidden="true"></div>
+
+<div class="vline" aria-hidden="true">
+  <div class="chevron-top"></div>
+  <div class="line"></div>
+  <div class="chevron-bottom"></div>
+</div>
+
+<div class="hline" aria-hidden="true">
+  <div class="line"></div>
+  <div class="head-left"></div>
+  <div class="head-right"></div>
+</div>
+
+<script>
+  /* =====================================================================
+     CONTENU DES PROJETS
+     Chaque projet peut avoir :
+
+       tags   : les mots-clés affichés en bleu au-dessus des images
+       infos  : les petites lignes en bas à droite (une entrée = un bloc,
+                \n = retour à la ligne)
+       slides : la liste des images / vidéos, chacune avec son texte
+
+     Une IMAGE :
+       { src:'images/anarchiveuse-01.jpg', alt:'Description', text:'Texte.\n\nDeuxième paragraphe.' }
+
+     Une VIDÉO YOUTUBE (colle simplement le lien de la vidéo) :
+       { youtube:'https://www.youtube.com/watch?v=XXXXXXXXXXX', text:'Texte de la vidéo.' }
+       - pour une vidéo verticale (format Shorts), ajoute  ratio:'9/16'
+
+     Un texte par image : il apparaît en fondu quand l'image atteint 30 % de visibilité.
+     Tant que `slides` vaut null, 3 images grises de démonstration sont affichées.
+     L'ordre des projets ci-dessous est aussi l'ordre du lien « projet suivant ».
+     ===================================================================== */
+  const PROJECTS = {
+    'anarchiveuse':            { title:"L'Anarchiveuse",
+    tags:'design d’expérience, curation d‘archives, VJing',
+    infos:[
+      'juin 2026, École Estienne',
+      'collectif Mouche, co-créé avec Gaspard Calais,\nLoane De Almeida Costa et Ulysse Migeat',
+      'Prochainement exposé..es au 60Adada,\nSeine Saint Denis.'
+    ],
+    slides: [
+      { youtube:'https://youtu.be/1-Y3RkCLCQk', 
+       alt:'Mini-film',
+      text:'Lancement de l’Anarchiveuse.'},
+      { src:'images/anarchiveuse/ANARCHIVEUSE_MOUCHE_image03.webp',
+      alt:'Image 1',
+      text:'S’interrogeant sur nos manières \n de faire narration, le collectif Mouche a imaginé l’Anarchiveuse ; \n une machine-outil d’exploration visuelle convoquant nos images passées pour nous permettre \n de mieux appréhender l’avenir.\n\n '},
+      {src:'images/anarchiveuse/ANARCHIVEUSE_MOUCHE_image10.webp',
+      alt:'Image 2',
+      text:'L’Anarchiveuse entraîne une expérience coopérative et ludique \n de montage vidéo en temps réel (VJing). \n\n En entrant dans la machine, \n les spectateur..ices deviennent activateur..ices : \n i..els jouent les archives. '},
+      {src:'images/anarchiveuse/ANARCHIVEUSE_MOUCHE_image05.webp',
+      alt:'Image 3',
+      text:'Elle permet de croiser des récits vidéographiques issus d’un contexte situé afin d’en faire émerger \n des narratives dérivées.'},
+      {src:'images/anarchiveuse/ANARCHIVEUSE_MOUCHE_image04.webp',
+      alt:'Image 4',
+      text:'Elle est équipée de commandes accessibles et facile à prendre \n en main : volant, pédales,\n joysticks. \n\n Les deux activateur..ices sont assis..es \n en face à face, à la manière des fauteuils dits confidents, ce qui permet l’échange.'},
+      {src:'images/anarchiveuse/ANARCHIVEUSE_MOUCHE_image14.webp',
+      alt:'Image 5',
+      text:'À l’issue de l’expérience,\n les activateur..ices peuvent retrouver leurs fragments audiovisuels, \n  leurs anarchives, répertoriées \n sur le site internet du collectif.'},
+      {src:'images/anarchiveuse/ANARCHIVEUSE_MOUCHE_image13.webp',
+      alt:'Image 6',
+      text:'Au sein de notre collectif, \n  nous avons constitué plusieurs pôles de création. \n\nPour ma part, en plus \n des phases d’élaboration du projet, \n de l’expérience, de curation archivistique et de création vidéo, \n j’ai réalisé l’identité visuelle mêlant notre démarche et sa mise en pratique. '},
+      {src:'images/anarchiveuse/ANARCHIVEUSE_MOUCHE_image11.webp',
+      alt:'Image 7',},
+      ] },
+
+    'nuna-yig-code': { title:'Nuna Yig Code',
+      tags:'design fiction, scénographie, graphisme',
+      infos:['octobre 2025, BULAC', 'Exposition ”Systèmes, comment s‘écrit demain ?"', 'Co-créé avec Albane Heitz.'],
+      slides:[
+        {src:'images/nunayigcode/nunayigcode01.webp',
+      alt:'Image 1',
+      text:'Nuna*Yig*Code fait partie \n de l’exposition "Systèmes, comment s’écrit demain ?", une exposition \n qui a eu lieu du 14 octobre au 14 novembre 2025 au sein de la BULAC, Bibliothèque universitaire des langues et civilisations (Paris, 13e).'},
+        {src:'images/nunayigcode/nunayigcode05.webp',
+      alt:'Image 2',
+      text:'Fruit d’une recherche iconographique et graphique menée parmi les fonds de la bibliothèque, cette exposition donne à voir sept mondavenirs, \n dont proviennent fanzines, témoignages et artefacts, \n comme issus d’une archéologie future.'},
+        {src:'images/nunayigcode/nunayigcode04.webp',
+      alt:'Image 3',
+      text:'Co-créée avec Albane Heitz, Nuna*Yig*Code est un mondavenir qui est aussi une écriture logographique fictionnelle dont \n les formes graphiques sont issues \n du syllabaire inuktitut, \n de l’alphasyllabaire tibétain \n et des langages de programmation occidentaux. '},
+        {src:'images/nunayigcode/nunayigcode03.webp',
+      alt:'Image 4',
+      text:''},
+        {src:'images/nunayigcode/nunayigcode02.webp',
+      alt:'Image 5',
+      text:'*Cette écriture émergerait au sein d’une communauté matrimoniale fictionnelle, se détachant des usages d’une médecine occidentale*'},
+        {src:'images/nunayigcode/nunayigcode06.webp',
+      alt:'Image 6',
+      text:'Notre récit de science-fiction féministe suppose que les composants numériques altèrent progressivement la fertilité humaine.'},
+        {src:'images/nunayigcode/fanzine_12.webp',
+      alt:'Image 7',
+      text:'Cette crise sanitaire pousserait \n alors une partie des populations européennes à migrer vers les montagnes tibétaines, devenues \n un refuge pour des communautés affectées par le dérèglement climatique et l ’intensification\n des activités technologiques.'},
+        {src:'images/nunayigcode/fanzine_3.webp',
+      alt:'Image 8',
+      text:'Ci-contre, l’alphabet logographique Nuna Yig Code composant notre fanzine de recherche.'},
+        {src:'images/nunayigcode/gif-fanzine.gif',
+      alt:'Image 9',
+      text:''},
+        ] },
+
+    'math-is-music': { title:'Math is Music',
+      tags:'recherche-médiation, graphisme, code créatif',
+      infos:['Affiché depuis septembre 2025 à Sorbonne Paris Nord, Villetaneuse', 'Conception graphique, affiches : Angèle Dumesny + Ornella Antony', 'Rédaction, scénarisation : Louise Orione + Angèle Dumesny + Ornella Antony', 'Animations 2D, 3D : Kévin Forest + Louise Orione + Ninon Chauveau + Louise Orione + Aurélien Guillot', 'Montage, son : Louise Orione + Kévin Forest', 'Voix-off : Marine Legentil'],
+      slides:[
+        {src:'images/mathismusic/dorothy_4.webp',
+      alt:'Image 1',
+      text:' Pour un amphithéâtre de l’Université Sorbonne Paris Nord, nous avons conçu une série de huit affiches incarnant la voix de Dorothy Vaughan. \n\n Elle vient désormais habiter les murs de cet espace de transmission, \n de mémoire et de science qui porte son nom.'},
+        {src:'images/mathismusic/dorothy_5.webp',
+      alt:'Image 2',
+      text:'Prenant la forme des cartes \n de programmation du langage FORTRAN, ces affiches font \n le pont entre musique \n et mathématiques à travers \n leurs compositions graphiques.'},
+        {src:'images/mathismusic/dorothy_1.webp',
+      alt:'Image 3',
+      text:'Chacune est symboliquement programmée, cryptée selon \n une bibliothèque graphique créée \n à partir d’images scientifiques, \n motifs de code créatif, typographies \n et grilles.'},
+        {src:'images/mathismusic/dorothy_3.webp',
+      alt:'Image 4',
+      text:'Elles fonctionnent en paire avec \n un film d’animation conçu et réalisé par notre groupe, racontant le rôle \n de Dorothy Vaughan à la NASA.'},
+        {youtube:'https://youtu.be/34RP2MhCs5Q',
+      alt:'vidéo',
+      text:'Mini-film d’animation intitulé \n *Math is Music* \n- expression personnelle \n de Dorothy Vaughan.'},
+        {src:'images/mathismusic/dorothy_2.webp',
+      alt:'Image 5',
+      text:''},
+        {src:'images/mathismusic/dorothy_6.webp',
+      alt:'Image 6',
+      text:'Ce projet de réhabilisation concerne quatre femmes scientifiques ; Claudine Hermann, Rosalind Franklin, Dorothy Vaughan \n et Maryam Mirzakhani. \n\n À cet effet ce sont les amphithéâtres A, B, C et D qui ont été renommés \n et qui sont désormais habités par \n ces objets de transmission.'},
+        {src:'images/mathismusic/dorothy_7.webp',
+      alt:'Image 7',
+      text:'Merci à Maurice Cary, son petit-fils, qui a apporté aux textes son histoire personnelle et intime.'},
+        ] },
+
+    'retro-reveur': { title:'Rétro-rêveur',
+      tags:'design de soin, recherche multimédia, médiation',
+      infos:['octobre 2025', 'Co-créé avec Lucie Pensivy, Elysa Picquendar \n et Louise Orione', 'Workshop en collaboration avec le Lab-ah, GHU \n de Paris '],
+      slides:[
+        {src:'images/retroreveur/retroreveur_3.webp',
+      alt:'Image 1',
+      text:'Pensé pour un centre hospitalier, \n le Rétro-rêveur, sous la forme \n d’un chariot ambulant, intervient dans un besoin d’apaisement.'},
+        {src:'images/retroreveur/retroreveur_6.webp',
+      alt:'Image 2',
+      text:''},
+        {youtube:'https://youtu.be/IGC2_lhD5Go',
+      alt:'vidéo',
+      text:'Ce dispositif mêlant projection analogique et code créatif, amène \n les utilisateur..ices à  composer leurs paysages intérieurs à partir d’objets, rhodoids et textes mis à disposition. \n\n Cette matière première est pensée pour s’intégrer à la vie du lieu ; \n elle est issue d’ateliers de création \n ou d’art thérapie.'},
+        {src:'images/retroreveur/retroreveur_8.webp',
+      alt:'Image 3',
+      text:''},
+        {src:'images/retroreveur/retroreveur_5.webp',
+      alt:'Image 4',
+      text:'D’après la projection sensible, \n une composition audiovisuelle \n est générée. \n\n Celle-ci accompagnée par \n le vrombissement de la machine \n peut permettre de se réapproprier l’espace et de réactiver sa capacité \n à créer.'},
+        {src:'images/retroreveur/retroreveur_7.webp',
+      alt:'Image 5',
+      text:''},
+        {src:'images/retroreveur/retroreveur_4.webp',
+      alt:'Image 6',
+      text:''},
+        ] },
+
+    'infra-curating': { title:'Infra-curating',
+      tags:'recherche-création, curation, ethnographi(sm)e',
+      infos:['2026', 'Infra-curating fait partie de la collection *Long Cuts* créée par le collectif Mouche, aussi composée de *Pure Jam par Gaspard Calais*, *Side Quest par Loane De Almeida Costa* et *Parallax View par Ulysse Migeat*', 'Écrit à l‘École Estienne et imprimé à l‘Imprimerie Launay (75013)'],
+      slides:[
+        {src:'images/infracurating/infra_curating01.webp',
+      alt:'Image 1',
+      text:'Pour l’écriture de mon mémoire \n de master (DSAA), j’ai mené \n des recherches sur les utopies féministes et la pratique de l’archivage \n de l’intime. '},
+        {src:'images/infracurating/infra_curating04.webp',
+      alt:'Image 1',
+      text:'J’ai alors découvert les rêves militants, ou la nécessité que certain..es ont \n à se nourrir d’éléments et faits passés pour se projeter dans l’avenir \n et concevoir des futurs désirables.'},
+        {src:'images/infracurating/avant-p_2.webp',
+      alt:'Image 1',
+      text:'Dans ma démarche, je rend visibles ces modes de pensées inhabituels \n en envisageant le passé par l’archivage de l’intime, qu’il serait possible \n de réinvestir via la pratique du VJing au sein d’espaces utopiques ancrés dans le présent.'},
+        {src:'images/infracurating/infra_curating05.webp',
+      alt:'Image 1',
+      text:''},
+        {src:'images/infracurating/gif2.gif',
+      alt:'Image 1',
+      text:''},
+        {src:'images/infracurating/infra_curating06.webp',
+      alt:'Image 1',
+      text:'Prenant appui sur la *Théorie \n de la Fiction Panier* (Ursula \n K. Le Guin, 1986), je récolte \n des pratiques graphiques semi-fictionnelles avec des typologies d’espaces utopiques, \n là où des rêves militants \n ont pris forme.'},
+        {src:'images/infracurating/infra_curating07.webp',
+      alt:'Image 1',
+      text:''},
+        {src:'images/infracurating/partie2_.webp',
+      alt:'Image 1',
+      text:'À travers des entretiens, \n des témoignages, des documentaires \n et des lectures, je tente de montrer quel genre de mémoire collective constituent les archives de l’intime \n et leur légitimité à être appelées ainsi. '},
+        {src:'images/infracurating/infra_curating10.webp',
+      alt:'Image 1',
+      text:''},
+        ] },
+
+    'nocturnes-du-generique': { title:'Les Nocturnes du Générique',
+      tags:'graphisme, motion design, stratégie de communication',
+      infos:['2024', 'Projet fictif avec le MK2 Bibliothèque', 'Diplôme de DNMADE'],
+      slides:[
+        {src:'images/nocturnesgeneriques/affiches_tryptique.webp',
+      alt:'Image 1',
+      text:'Après avoir enquêté sur le pouvoir immersif des génériques de film pour mon mémo de DNMADE, \n je me suis demandé : \n\n De quelle manière pourrait-on valoriser un évènement existant \n et le faire évoluer graphiquement \n dans l’espace à l’aide de supports d’affichage numérique ?'},
+        {youtube:'https://youtu.be/Tfny7z9PodA',
+      alt:'vidéo',
+      text:'Initialement organisée par *We Love Your Names* au Forum des Images, \n j’ai imaginé que *La Nuit des Génériques* puisse devenir \n *Les Nocturnes du Générique* ; \n un festival de trois jours se produisant au Mk2 Bibliothèque.'},
+        {src:'images/nocturnesgeneriques/mise en situation copie.webp',
+      alt:'Image 1',
+      text:'À travers le thème de la vitesse, \n *Les Nocturnes du Générique* viendraient alors habiter le parvis \n du MK2 sous la forme d’un vestibule d’écrans soulignant l’aspect introductif du générique.'},
+        {youtube:'https://youtu.be/2uZyrqx0mVY',
+      alt:'vidéo',
+      text:''},
+        {youtube:'https://youtu.be/eYY9gD40E9I',
+      alt:'vidéo',
+      text:''},
+        {youtube:'https://youtu.be/brU7Qy8z0z0',
+      alt:'vidéo',
+      text:'Affichant en gros plan des génériques connus du grand public, \n la bande annonce du festival \n diffusée sur les écrans attirerait \n le regard curieux de nombreux passants, jour comme nuit.'},
+        ] },
+
+    'manifeste-de-mouche': { title:'Manifeste de Mouche',
+      tags:'sérigraphie, scénographie, graphisme',
+      infos:['mai 2026', 'Par le collectif Mouche', 'Cent-Quatre, Paris'],
+      slides:[
+        {src:'images/manifestemouche/manifeste_10.webp',
+      alt:'Image 1',
+      text:'Nous sommes un collectif de designer·euses multimédia qui choisit \n de ne plus conter en ligne droite \n mais en zig-zag.'},
+        {src:'images/manifestemouche/manifeste_15.webp',
+      alt:'Image 1',
+      text:'Le long de cet pellicule-abécédaire, nous tentons de déployer nos premières intentions curatoriales \n *une archéologie des récits et des médias* explorant les porosités entre des imaginaires pluriels aux liens potentiellement incongrus.'},
+        {src:'images/manifestemouche/manifeste_02.webp',
+      alt:'Image 1',
+      text:''},
+        {youtube:'https://youtu.be/c43N5o7z1BY',
+      alt:'Image 1',
+      text:''},
+        {src:'images/manifestemouche/manifeste_12.webp',
+      alt:'Image 1',
+      text:''},
+        {youtube:'https://youtu.be/NRglTABBtI4p',
+      alt:'Image 1',
+      text:''},
+        {src:'images/manifestemouche/manifeste_07.webp',
+      alt:'Image 1',
+      text:''},
+        {src:'images/manifestemouche/manifeste_06.webp',
+      alt:'Image 1',
+      text:''},
+        {src:'images/manifestemouche/manifeste_01.webp',
+      alt:'Image 1',
+      text:'En avant-propos de notre projet \n de diplôme, cette pellicule sérigraphiée a participé à créer \nune porte d’entrée vers l’Anarchiveuse.'},
+        {youtube:'https://youtu.be/G9nioMRNvMc',
+      alt:'Image 1',
+      text:''},
+        {youtube:'https://youtu.be/APVfxqRtf-o',
+      alt:'Image 1',
+      text:'Le teaser de nos intentions de collectif a été réalisé à partir de vidéos d’archives sélectionnées sur Internet Archive et narrativement recomposée par nos soins.'},
+        {src:'images/manifestemouche/signature_mouche.webp',
+      alt:'Image 1',
+      text:''},
+        ] },
+
+    'mix-max-vjing': { title:'Mix Max - VJing', soon:true,
+      tags:'VJing, montage, curation',
+      infos:['février 2026', '[Lalouze&Thelmaz] \n\n Dj : Louise orione \n\n VJs : Elysa Picquendar et Ornella Antony', 'Cité Fertile, Pantin (93)'],
+      slides:[
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        ] },
+
+    'le-banquet': { title:'Le Banquet', soon:true,
+      tags:'projection, montage, performance',
+      infos:['novembre 2025', 'Oeuvre collective, DSAA DCN promo 2024-2026', 'École Estienne'],
+      slides:[
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        ] },
+
+    'trobairitz': { title:'Trobairitz', soon:true,
+      tags:'recherche-création, curation, médiation',
+      infos:['septembre 2026 - ...', 'En co-création avec Elysa Picquendar et Angèle Dumesny', '.WWW'],
+      slides:[
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        ] },
+
+    'faites-du-cochon': { title:'Faîtes du porc', soon:true,
+      tags:'sérigraphie, scénographie, graphisme',
+      infos:['mai 2026', 'Par le collectif Mouche', 'Cent-Quatre, Paris'],
+      slides:[
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        ] },
+
+    'crions-de-bois': { title:'Crions de bois', soon:true,
+      tags:'sérigraphie, scénographie, graphisme',
+      infos:['mai 2026', 'Par le collectif Mouche', 'Cent-Quatre, Paris'],
+      slides:[
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        ] },
+
+    'pierret..e-le-loup': { title:'Pierret..te le loup', soon:true,
+      tags:'sérigraphie, scénographie, graphisme',
+      infos:['mai 2026', 'Par le collectif Mouche', 'Cent-Quatre, Paris'],
+      slides:[
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        ] },
+
+  };
+
+  const DEMO_SLIDES = [
+    { src:'', text:"Texte associé à la première image.\n\nIl s'affiche ici et laisse sa place, en fondu, au texte suivant dès que la deuxième image atteint 30 % de visibilité dans le cadre." },
+    { src:'', text:"Texte associé à la deuxième image.\n\nChaque image du bandeau a son propre texte." },
+    { src:'', text:"Texte associé à la troisième image.\n\nOn peut en ajouter autant que nécessaire." }
+  ];
+
+  /* ---------- Construction de la page ---------- */
+  const slug    = new URLSearchParams(location.search).get('p');
+  const project = PROJECTS[slug] || {
+    title:'Nom du projet',
+    tags:'mots-clés, à, compléter',
+    infos:['date', 'crédits : noms des personnes', 'lieu / exposition'],
+    slides:null
+  };
+  const slides  = (project.slides && project.slides.length) ? project.slides : DEMO_SLIDES;
+
+  document.title = project.title + ' — Ornella Antony';
+  document.getElementById('title').textContent = project.title;
+  document.getElementById('tags').textContent  = project.tags || '';
+
+  /* ---------- Crédits : les noms ci-dessous deviennent automatiquement des liens ----------
+     Pour ajouter quelqu'un :  'Prénom Nom': 'https://adresse…',
+     (majuscules / minuscules indifférentes : « Louise orione » marche aussi) */
+  const FRIENDS = {
+    'Angèle Dumesny':   'https://angeledumesny.github.io/',
+    'Elysa Picquendar': 'https://www.picquendar.art/',
+    'Louise Orione':    'https://louiseorione.github.io/louise-orione/index.html',
+    'Ulysse Migeat':    'https://readymag.website/u1867788947/6184196/?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAcGRvZgJzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAac35FjFN1D-LIporttwskyGSgXU83K6lQ3zOqf_ShMSw0wK8Bitrf0ZMXOuSw_aem_ilYQOrg5axT-S0f_RZmabw',
+    'Albane Heitz':     'https://www.instagram.com/albane.htz/',
+    'Lucie Pensivy':    'https://www.instagram.com/antipykal/',
+    'Loane De Almeida Costa': 'https://loanephos.fr/',
+    'Gaspard Calais':   'https://www.instagram.com/cgasp_art/',
+    'Mouche':           'https://collectif-bzzbzz-mouche.github.io/Anarchiveuse/index.html?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAcGRvZgJzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAac8aRxu3eB70YgpLMLbecUdD-goV2ucd9cAtO7zR_3jY0_Mn7YGnrzisLWvmg_aem_By3UD8k6RGRJWU5TDRKNwA'
+  };
+  const friendNames = Object.keys(FRIENDS).sort((a, b) => b.length - a.length);
+  const escapeRe = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const friendRe = new RegExp('(?<!\\p{L})(' + friendNames.map(escapeRe).join('|') + ')(?!\\p{L})', 'giu');
+
+  // ajoute une ligne de texte en transformant les noms connus en liens
+  function appendWithLinks(parent, line){
+    let last = 0;
+    for(const m of line.matchAll(friendRe)){
+      if(m.index > last) parent.appendChild(document.createTextNode(line.slice(last, m.index)));
+      const key = friendNames.find(n => n.toLowerCase() === m[0].toLowerCase());
+      const a = document.createElement('a');
+      a.className = 'friend';
+      a.href = FRIENDS[key];
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = m[0];
+      parent.appendChild(a);
+      last = m.index + m[0].length;
+    }
+    if(last < line.length) parent.appendChild(document.createTextNode(line.slice(last)));
+  }
+
+  const infosEl = document.getElementById('infos');
+  (project.infos || []).forEach(block => {
+    const p = document.createElement('p');
+    block.split('\n').forEach((line, k) => {
+      if(k) p.appendChild(document.createElement('br'));
+      appendWithLinks(p, line);
+    });
+    infosEl.appendChild(p);
+  });
+
+  /* ---------- Lien « projet suivant » (revient au premier après le dernier) ----------
+     Les projets marqués  soon:true  (pas encore documentés, grisés sur l'accueil)
+     sont sautés. Quand un projet est prêt : enlève  soon:true  ici
+     ET  is-soon  sur sa ligne dans index.html. */
+  const slugs = Object.keys(PROJECTS).filter(k => !PROJECTS[k].soon || k === slug);
+  const nextSlug = slugs[(slugs.indexOf(slug) + 1) % slugs.length];
+  document.getElementById('next').href = 'projet.html?p=' + encodeURIComponent(nextSlug);
+
+  /* ---------- YouTube ---------- */
+  function youtubeId(url){
+    const m = String(url).match(/(?:youtu\.be\/|[?&]v=|embed\/|shorts\/|live\/)([\w-]{11})/);
+    if(m) return m[1];
+    return /^[\w-]{11}$/.test(url) ? url : null;
+  }
+
+  // Affiche la vignette + bouton lecture. Au clic, on charge le vrai lecteur.
+  function showFacade(box, id, label){
+    box.innerHTML = '';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'yt-play';
+    btn.setAttribute('aria-label', 'Lire la vidéo' + (label ? ' : ' + label : ''));
+    btn.style.backgroundImage = 'url(https://i.ytimg.com/vi/' + id + '/hqdefault.jpg)';
+    btn.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1';
+      f.title = label || 'Vidéo YouTube';
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.referrerPolicy = 'strict-origin-when-cross-origin';
+      box.innerHTML = '';
+      box.appendChild(f);
+    });
+    box.appendChild(btn);
+  }
+
+  const gallery = document.getElementById('gallery');
+  const textsEl = document.getElementById('texts');
+  const slideEls = [];
+  const textEls  = [];
+
+  slides.forEach((s, i) => {
+    const fig = document.createElement('figure');
+    fig.className = 'slide';
+    const ytId = s.youtube ? youtubeId(s.youtube) : null;
+
+    if(ytId){
+      fig.classList.add('video');
+      if(s.ratio) fig.style.setProperty('--ratio', s.ratio);
+      const box = document.createElement('div');
+      box.className = 'yt';
+      fig.appendChild(box);
+      showFacade(box, ytId, s.alt);
+      // quand la vidéo sort du cadre, on revient à la vignette (ce qui coupe la lecture)
+      fig._reset = () => { if(box.querySelector('iframe')) showFacade(box, ytId, s.alt); };
+    } else if(s.src){
+      const img = document.createElement('img');
+      img.src = s.src;
+      img.alt = s.alt || '';
+      fig.appendChild(img);
+    } else {
+      fig.classList.add('placeholder');
+      fig.textContent = 'IMAGE ' + (i + 1);
+    }
+    gallery.appendChild(fig);
+    slideEls.push(fig);
+
+    const t = document.createElement('div');
+    t.className = 'text';
+    (s.text || '').split(/\n\s*\n/).forEach(par => {
+      if(!par.trim()) return;
+      const p = document.createElement('p');
+      p.textContent = par.trim();
+      t.appendChild(p);
+    });
+    textsEl.appendChild(t);
+    textEls.push(t);
+  });
+
+  /* ---------- Texte actif : fondu quand une image franchit 30 % de visibilité ---------- */
+  let active = 0;
+  function setActive(i){
+    if(i === active) return;
+    textEls[active].classList.remove('is-active');
+    textEls[i].classList.add('is-active');
+    active = i;
+  }
+  textEls[0].classList.add('is-active');
+
+  const THRESHOLD = 0.3;
+  const prevRatio = slideEls.map(() => 0);
+  const steps = Array.from({length:101}, (_, k) => k / 100);
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const i = slideEls.indexOf(entry.target);
+      const r = entry.intersectionRatio;
+      // on ne bascule que lorsque l'image FRANCHIT 30 % en entrant (évite les allers-retours)
+      if(r >= THRESHOLD && prevRatio[i] < THRESHOLD) setActive(i);
+      if(r < 0.15 && entry.target._reset) entry.target._reset();
+      prevRatio[i] = r;
+    });
+  }, { root: gallery, threshold: steps });
+  slideEls.forEach(el => io.observe(el));
+
+  /* ---------- Un seul défilement : la molette / le trackpad fait défiler les images à l'horizontale ---------- */
+  window.addEventListener('wheel', e => {
+    const d = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    gallery.scrollLeft += d;
+    e.preventDefault();
+  }, { passive:false });
+</script>
+
+</body>
+</html>
