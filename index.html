@@ -141,7 +141,7 @@
     font-size:clamp(1rem, 2.6vw, 2.4rem);
   }
 
-  /* ---------- PAGE INFOS EN FONDU (5s) par-dessus l'accueil ---------- */
+  /* ---------- PAGE INFOS EN FONDU (2,5s) par-dessus l'accueil ---------- */
   .infos-frame{
     position:fixed;
     inset:0;
@@ -151,7 +151,7 @@
     z-index:100;
     background:#fff;
     opacity:0;
-    transition:opacity 5s ease-in-out;     /* durée du fondu */
+    transition:opacity 2.5s ease-in-out;   /* durée du fondu */
   }
   .infos-frame.is-visible{ opacity:1; }
   .infos-frame.is-leaving{ transition-duration:.4s; opacity:0; }
@@ -635,7 +635,7 @@
     setContact(false);
   });
 
-  // ---------- INFOS : la page Infos apparaît en fondu (5s) par-dessus l'accueil ----------
+  // ---------- INFOS : la page Infos apparaît en fondu (2,5s) par-dessus l'accueil ----------
   // L'accueil reste visible dessous pendant tout le fondu, dans tous les navigateurs.
   const infosLink = document.querySelector('nav a[href="infos.html"]');
   const homeTitle = document.title;

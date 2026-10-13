@@ -176,47 +176,53 @@
 
   /* ---------- VIDÉO YOUTUBE DANS LE CADRE ---------- */
     .slide.video{
+    position:relative;                 /* pour placer le bouton « son » */
     aspect-ratio:var(--ratio, 16/9);   /* largeur calculée depuis la hauteur, comme une image */
   }
   .yt{
     position:relative;
     width:100%;
     height:100%;                        /* la vidéo prend toute la hauteur du cadre */
-    background:#000;
+    background:#000 center / cover no-repeat;   /* vignette affichée pendant le chargement */
     overflow:hidden;
   }
+  /* Le lecteur est plus haut que le cadre : la barre de titre YouTube (en haut)
+     et le logo (en bas) dépassent et sont coupés. Il ne réagit pas à la souris,
+     donc l'habillage YouTube n'apparaît pas au survol et la molette fait
+     toujours défiler les images. Il reste invisible jusqu'au début de la lecture. */
   .yt iframe{
-    position:absolute; inset:0;
-    width:100%; height:100%;
+    position:absolute;
+    left:0;
+    top:-70px;
+    width:100%;
+    height:calc(100% + 140px);
     border:0;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .6s ease;
   }
-  /* Vignette + bouton lecture : la vraie vidéo ne se charge qu'au clic */
-  .yt-play{
-    position:absolute; inset:0;
-    width:100%; height:100%;
-    border:0; padding:0;
-    background:#000 center / cover no-repeat;
+  .yt.is-ready iframe{ opacity:1; }
+
+  /* bouton son (les vidéos démarrent muettes : obligatoire pour la lecture automatique) */
+  .yt-sound{
+    position:absolute;
+    right:.9rem;
+    bottom:.9rem;
+    z-index:2;
+    padding:.25rem .35rem;
+    border:0;
+    background:none;
+    font-family:'DRKrapka', sans-serif;
+    font-size:.8rem;
+    color:#fff;
+    -webkit-text-stroke:0.9px var(--brown);
     cursor:pointer;
   }
-  .yt-play::before{
-    content:"";
-    position:absolute; left:50%; top:50%;
-    width:4.2rem; height:4.2rem;
-    margin:-2.1rem 0 0 -2.1rem;
-    border-radius:50%;
-    background:rgba(255,255,255,.92);
-    box-shadow:0 0 0 2px var(--brown);
-    transition:transform .2s ease;
+  .yt-sound:hover, .yt-sound:focus-visible{
+    color:var(--brown);
+    -webkit-text-stroke:2px #5BCEFF;
+    paint-order:stroke fill;
   }
-  .yt-play::after{
-    content:"";
-    position:absolute; left:50%; top:50%;
-    width:1.2rem; height:1.4rem;
-    margin:-.7rem 0 0 -.45rem;
-    background:var(--brown);
-    clip-path:polygon(0 0, 100% 50%, 0 100%);
-  }
-  .yt-play:hover::before{ transform:scale(1.08); }
 
   /* ---------- TITRE DU PROJET ---------- */
   h1{
@@ -822,26 +828,88 @@
     return /^[\w-]{11}$/.test(url) ? url : null;
   }
 
-  // Affiche la vignette + bouton lecture. Au clic, on charge le vrai lecteur.
-  function showFacade(box, id, label){
-    box.innerHTML = '';
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'yt-play';
-    btn.setAttribute('aria-label', 'Lire la vidéo' + (label ? ' : ' + label : ''));
-    btn.style.backgroundImage = 'url(https://i.ytimg.com/vi/' + id + '/hqdefault.jpg)';
-    btn.addEventListener('click', () => {
-      const f = document.createElement('iframe');
-      f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1';
-      f.title = label || 'Vidéo YouTube';
-      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
-      f.allowFullscreen = true;
-      f.referrerPolicy = 'strict-origin-when-cross-origin';
-      box.innerHTML = '';
-      box.appendChild(f);
-    });
-    box.appendChild(btn);
+  // ---------- Lecture automatique ----------
+  // Chaque vidéo se lance (muette) quand elle est dans le cadre et se met en pause
+  // quand elle en sort. Le bouton « son » active ou coupe le son.
+  const PLAY_AT  = 0.3;    // part visible à partir de laquelle la vidéo se lance
+  const PAUSE_AT = 0.2;    // en dessous, elle se met en pause
+
+  function ytCommand(iframe, func, args){
+    if(!iframe || !iframe.contentWindow) return;
+    iframe.contentWindow.postMessage(JSON.stringify({ event:'command', func:func, args:args || [] }), '*');
   }
+
+  function setupYouTube(fig, box, id, label){
+    box.style.backgroundImage = 'url(https://i.ytimg.com/vi/' + id + '/hqdefault.jpg)';
+    let iframe = null, loaded = false, wantPlay = false, muted = true;
+
+    const sound = document.createElement('button');
+    sound.type = 'button';
+    sound.className = 'yt-sound';
+    sound.textContent = 'activer le son';
+    sound.setAttribute('aria-pressed', 'false');
+    sound.setAttribute('aria-label', 'Activer le son' + (label ? ' : ' + label : ''));
+    sound.addEventListener('click', () => {
+      muted = !muted;
+      ytCommand(iframe, muted ? 'mute' : 'unMute');
+      if(!muted) ytCommand(iframe, 'setVolume', [100]);
+      sound.textContent = muted ? 'activer le son' : 'couper le son';
+      sound.setAttribute('aria-pressed', String(!muted));
+      sound.setAttribute('aria-label', (muted ? 'Activer' : 'Couper') + ' le son' + (label ? ' : ' + label : ''));
+    });
+    fig.appendChild(sound);
+
+    function createPlayer(){
+      const params = new URLSearchParams({
+        autoplay:'0', mute:'1', controls:'0', rel:'0', playsinline:'1',
+        loop:'1', playlist:id, iv_load_policy:'3', disablekb:'1', fs:'0', enablejsapi:'1'
+      });
+      if(location.protocol.startsWith('http')) params.set('origin', location.origin);
+      iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube-nocookie.com/embed/' + id + '?' + params;
+      iframe.title = label || 'Vidéo YouTube';
+      iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      iframe.tabIndex = -1;
+      iframe.addEventListener('load', () => {
+        loaded = true;
+        // s'abonne aux événements du lecteur (pour savoir quand la lecture démarre)
+        iframe.contentWindow.postMessage(JSON.stringify({ event:'listening', id:id, channel:'widget' }), '*');
+        if(!muted) ytCommand(iframe, 'unMute');
+        if(wantPlay) ytCommand(iframe, 'playVideo');
+        // filet de sécurité si le lecteur ne prévient pas
+        setTimeout(() => { if(wantPlay) box.classList.add('is-ready'); }, 3000);
+      });
+      box.appendChild(iframe);
+    }
+
+    // appelé à chaque changement de visibilité de la vidéo dans le cadre
+    fig._visibility = r => {
+      if(r > 0 && !iframe) createPlayer();          // le lecteur se charge à l'approche
+      if(r >= PLAY_AT && !wantPlay){
+        wantPlay = true;
+        if(loaded) ytCommand(iframe, 'playVideo');
+      } else if(r < PAUSE_AT && wantPlay){
+        wantPlay = false;
+        if(loaded) ytCommand(iframe, 'pauseVideo');
+      }
+    };
+    fig._isPlayer = w => iframe && iframe.contentWindow === w;
+    fig._ready = () => box.classList.add('is-ready');
+  }
+
+  // le lecteur prévient quand la lecture commence : on l'affiche à ce moment-là
+  window.addEventListener('message', e => {
+    if(!/youtube(-nocookie)?\.com$/.test(new URL(e.origin, location.href).hostname)) return;
+    let d; try{ d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; }catch(err){ return; }
+    if(!d) return;
+    const state = d.event === 'onStateChange' ? d.info
+                : (d.event === 'infoDelivery' && d.info ? d.info.playerState : undefined);
+    if(state !== 1) return;                       // 1 = lecture en cours
+    document.querySelectorAll('.slide.video').forEach(fig => {
+      if(fig._isPlayer && fig._isPlayer(e.source)) fig._ready();
+    });
+  });
 
   const gallery = document.getElementById('gallery');
   const textsEl = document.getElementById('texts');
@@ -859,9 +927,7 @@
       const box = document.createElement('div');
       box.className = 'yt';
       fig.appendChild(box);
-      showFacade(box, ytId, s.alt);
-      // quand la vidéo sort du cadre, on revient à la vignette (ce qui coupe la lecture)
-      fig._reset = () => { if(box.querySelector('iframe')) showFacade(box, ytId, s.alt); };
+      setupYouTube(fig, box, ytId, s.alt);
     } else if(s.src){
       const img = document.createElement('img');
       img.src = s.src;
@@ -905,7 +971,7 @@
       const r = entry.intersectionRatio;
       // on ne bascule que lorsque l'image FRANCHIT 30 % en entrant (évite les allers-retours)
       if(r >= THRESHOLD && prevRatio[i] < THRESHOLD) setActive(i);
-      if(r < 0.15 && entry.target._reset) entry.target._reset();
+      if(entry.target._visibility) entry.target._visibility(r);
       prevRatio[i] = r;
     });
   }, { root: gallery, threshold: steps });
