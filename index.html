@@ -426,38 +426,49 @@
     .scrollbar{ right:.6rem; width:1.4rem; padding:2.8rem 0 1.5rem; }
     .fade-top{ height:70px; }
     .fade-bottom{ height:160px; }
-    .contact-panel{ left:8vw; right:8vw; bottom:6vh; }
-    .contact-panel a{ font-size:7vw; }
-    .contact-panel .city{ font-size:5vw; }
+    /* contact : coordonnées violettes, dans le menu ouvert */
+    .contact-panel{ z-index:43; left:8vw; right:auto; bottom:8vh; font-weight:400; line-height:1.8; color:#6C22DE; }
+    .contact-panel a{ font-size:5.6vw; text-decoration-thickness:1px; }
+    .contact-panel .city{ font-size:5.6vw; margin-top:0; }
+    body::after{ display:none; }          /* pas de voile blanc : le menu fait déjà le fond */
   }
   @keyframes rowIn{ from{ opacity:0; transform:translateY(-4px); } }
 
   /* ---------- MENU TÉLÉPHONE ---------- */
   .menu-toggle, .menu-veil{ display:none; }
   @media (max-width: 820px){
+    :root{ --chev-size:13px; }          /* chevrons un peu plus grands sur téléphone */
     .menu-toggle{
       display:block;
       position:fixed;
       z-index:45;
-      top:calc(1.1rem + env(safe-area-inset-top,0px));
+      top:calc(2vh + env(safe-area-inset-top,0px));
       left:8vw;
-      padding:.3rem .2rem;
+      padding:0;
       border:0;
       background:none;
       font-family:'Tremplin', sans-serif;
-      font-weight:300;
-      font-size:1.05rem;
-      color:#7B5CF0;
+      font-weight:400;
+      font-size:6.6vw;
+      line-height:1.2;
+      color:#6C22DE;
       cursor:pointer;
     }
+    /* voile : bleu en haut qui se fond dans le blanc, léger vert tout en bas, page floutée dessous */
     .menu-veil{
       display:block;
       position:fixed;
       inset:0;
       z-index:40;
-      background:linear-gradient(to bottom, rgba(142,224,250,.92) 0%, rgba(142,224,250,.5) 45%, rgba(255,255,255,.3) 100%);
-      -webkit-backdrop-filter:blur(7px);
-      backdrop-filter:blur(7px);
+      background:linear-gradient(to bottom,
+        rgba(140,224,250,1) 0%,
+        rgba(183,236,252,.97) 13%,
+        rgba(220,246,253,.93) 26%,
+        rgba(255,255,255,.88) 43%,
+        rgba(255,255,255,.88) 94%,
+        rgba(214,254,244,.95) 100%);
+      -webkit-backdrop-filter:blur(6px);
+      backdrop-filter:blur(6px);
       opacity:0;
       visibility:hidden;
       transition:opacity .35s ease, visibility 0s linear .35s;
@@ -467,14 +478,14 @@
     nav{
       position:fixed;
       z-index:42;
-      top:calc(8vh + env(safe-area-inset-top,0px));
-      left:8vw;
+      top:calc(6.2vh + env(safe-area-inset-top,0px));
+      left:8.9vw;
       right:auto;
       transform:translateY(-6px);
       display:flex;
       flex-direction:column;
       align-items:flex-start;
-      gap:3.4vh;
+      gap:2.5vh;
       padding:0;
       opacity:0;
       visibility:hidden;
@@ -490,15 +501,15 @@
     nav a{
       padding:0;
       font-family:'DRKrapka', sans-serif;
-      font-size:6vw;
+      font-size:8.8vw;
       line-height:1.1;
       color:#fff;
-      -webkit-text-stroke:1px #761AE7;
+      -webkit-text-stroke:1.3px #6C22DE;
       paint-order:normal;
     }
-    nav a:hover, nav a:active, nav a:focus-visible{
-      color:#761AE7;
-      -webkit-text-stroke:1px #761AE7;
+    nav a:hover, nav a:active, nav a:focus-visible, nav a.is-active{
+      color:#6C22DE;
+      -webkit-text-stroke:1.3px #6C22DE;
     }
   }
 
@@ -529,7 +540,7 @@
 
 <nav id="mobile-menu" aria-label="Menu principal">
   <a href="infos.html">INFOS</a>
-  <a href="#contact" id="contact-toggle" aria-expanded="false" aria-controls="contact-panel">contact</a>
+  <a href="#contact" data-keep-menu id="contact-toggle" aria-expanded="false" aria-controls="contact-panel">contact</a>
   <a href="https://www.instagram.com/mouche.collective/">mouche.collective</a>
   <a href="#">trobairitz</a>
   <a href="https://www.dsaa-numerique-estienne.fr/">D15</a>
@@ -942,7 +953,10 @@
     }
     btn.addEventListener('click', e => { e.stopPropagation(); setMenu(!document.body.classList.contains('menu-open')); });
     veil.addEventListener('click', () => setMenu(false));
-    nav.addEventListener('click', e => { if(e.target.closest('a')) setTimeout(() => setMenu(false), 150); });
+    nav.addEventListener('click', e => {
+      const a = e.target.closest('a');
+      if(a && !a.hasAttribute('data-keep-menu')) setTimeout(() => setMenu(false), 150);   // « contact » garde le menu ouvert
+    });
     document.addEventListener('keydown', e => { if(e.key === 'Escape') setMenu(false); });
     window.addEventListener('pageshow', () => setMenu(false));
   })();

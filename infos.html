@@ -392,8 +392,18 @@
   .exp .desc{ max-width:34vw; }
 
   /* ----- Crédits typographiques (fin de page) ----- */
+  /* ----- Télécharger le CV ----- */
+  .cv{
+    margin:12vh 0 0 var(--exp-col);
+    font-family:var(--serif);
+    font-size:clamp(.95rem, 1.5vw, 1.3rem);
+    color:var(--brown);
+  }
+  .cv a{ transition:color .2s ease; }
+  .cv a:hover, .cv a:focus-visible{ color:var(--purple); }
+
   .credits{
-    margin:24vh 0 0 var(--exp-col);
+    margin:14vh 0 0 var(--exp-col);
     font-family:var(--sans);
     font-size:clamp(.6rem, .7vw, .7rem);
     line-height:2.1;
@@ -419,6 +429,21 @@
     pointer-events:none;
     z-index:10;
   }
+  /* flèche cliquable : moitié haute = remonter d'un bloc, moitié basse = descendre d'un bloc */
+  .sb-btn{
+    position:absolute;
+    left:0; right:0;
+    height:50%;
+    border:0;
+    padding:0;
+    background:none;
+    pointer-events:auto;
+  }
+  .sb-up{ top:0; }
+  .sb-down{ bottom:0; }
+  .scrollbar .chevron-top, .scrollbar .chevron-bottom{ transition:border-width .15s ease; }
+  .scrollbar:has(.sb-up:hover, .sb-up:focus-visible) .chevron-top,
+  .scrollbar:has(.sb-down:hover, .sb-down:focus-visible) .chevron-bottom{ border-width:calc(var(--chev-border) + 2px); }
   .scrollbar .chevron-top,
   .scrollbar .chevron-bottom{
     width:var(--chev-size);
@@ -518,21 +543,22 @@
     .band{
       left:0; right:0; width:auto;
       background:linear-gradient(to right,
-        rgba(142,224,250,1) 0, rgba(142,224,250,.4) 3vw, rgba(142,224,250,0) 7vw,
-        rgba(142,224,250,0) 93vw, rgba(142,224,250,.4) 97vw, rgba(142,224,250,1) 100%);
+        rgba(142,224,250,.95) 0, rgba(142,224,250,.55) 2.5vw, rgba(142,224,250,.22) 5.5vw, rgba(142,224,250,0) 10vw,
+        rgba(142,224,250,0) 90vw, rgba(142,224,250,.22) 94.5vw, rgba(142,224,250,.55) 97.5vw, rgba(142,224,250,.95) 100%);
     }
     .menu::before, .menu .ghost{ display:none; }
     main{ padding:calc(17vh + env(safe-area-inset-top,0px)) 8.4vw 10rem; }
     .lead, .portrait, .story, .story .small, .missions,
     .formations, .experiences{ margin-left:0; width:auto; }
-    .bio{ font-size:6.6vw; line-height:1.15; }
+    .bio{ font-size:calc(6.6vw - 2.5px); line-height:1.15; }   /* Garabosse : 2,5 px de moins */
     .portrait{ width:auto; margin:.35em -8.4vw 0; aspect-ratio:394 / 225; }   /* photo d'un bord à l'autre */
     .story{ margin-top:1.1em; font-size:1.06em; }
     .formations{ margin-top:6rem; text-align:left; }
     .f-row{ grid-template-columns:4.6rem 1fr; }
     .experiences{ margin-top:6rem; }
     .exp .desc{ max-width:none; }
-    .credits{ margin:5rem 0 0; font-size:.65rem; }
+    .cv{ margin:4rem 0 0; font-size:1.15rem; }
+    .credits{ margin:4rem 0 0; font-size:.65rem; }
     .degree, .exp-head{ font-size:.9rem; }
     .desc{ font-size:.8rem; line-height:1.6; }
     .year{ font-size:.65rem; }
@@ -545,29 +571,38 @@
   /* ---------- MENU TÉLÉPHONE ---------- */
   .menu-toggle, .menu-veil{ display:none; }
   @media (max-width: 820px){
+    :root{ --chev-size:13px; }          /* chevrons un peu plus grands sur téléphone */
     .menu-toggle{
       display:block;
       position:fixed;
       z-index:45;
-      top:calc(1.1rem + env(safe-area-inset-top,0px));
+      top:calc(2vh + env(safe-area-inset-top,0px));
       left:50%; transform:translateX(-50%);
-      padding:.3rem .2rem;
+      padding:0;
       border:0;
       background:none;
       font-family:'Tremplin', sans-serif;
-      font-weight:300;
-      font-size:1.05rem;
-      color:#7B5CF0;
+      font-weight:400;
+      font-size:6.6vw;
+      line-height:1.2;
+      color:#6C22DE;
       cursor:pointer;
     }
+    /* voile : bleu en haut qui se fond dans le blanc, léger vert tout en bas, page floutée dessous */
     .menu-veil{
       display:block;
       position:fixed;
       inset:0;
       z-index:40;
-      background:linear-gradient(to bottom, rgba(142,224,250,.92) 0%, rgba(142,224,250,.5) 45%, rgba(255,255,255,.3) 100%);
-      -webkit-backdrop-filter:blur(7px);
-      backdrop-filter:blur(7px);
+      background:linear-gradient(to bottom,
+        rgba(140,224,250,1) 0%,
+        rgba(183,236,252,.97) 13%,
+        rgba(220,246,253,.93) 26%,
+        rgba(255,255,255,.88) 43%,
+        rgba(255,255,255,.88) 94%,
+        rgba(214,254,244,.95) 100%);
+      -webkit-backdrop-filter:blur(6px);
+      backdrop-filter:blur(6px);
       opacity:0;
       visibility:hidden;
       transition:opacity .35s ease, visibility 0s linear .35s;
@@ -577,14 +612,14 @@
     .menu{
       position:fixed;
       z-index:42;
-      top:calc(8vh + env(safe-area-inset-top,0px));
-      left:8vw;
+      top:calc(6.2vh + env(safe-area-inset-top,0px));
+      left:8.9vw;
       right:auto;
       transform:translateY(-6px);
       display:flex;
       flex-direction:column;
       align-items:flex-start;
-      gap:3.4vh;
+      gap:2.5vh;
       padding:0;
       opacity:0;
       visibility:hidden;
@@ -600,15 +635,15 @@
     .menu a{
       padding:0;
       font-family:'DRKrapka', sans-serif;
-      font-size:6vw;
+      font-size:8.8vw;
       line-height:1.1;
       color:#fff;
-      -webkit-text-stroke:1px #761AE7;
+      -webkit-text-stroke:1.3px #6C22DE;
       paint-order:normal;
     }
     .menu a:hover, .menu a:active, .menu a:focus-visible{
-      color:#761AE7;
-      -webkit-text-stroke:1px #761AE7;
+      color:#6C22DE;
+      -webkit-text-stroke:1.3px #6C22DE;
     }
   }
 
@@ -755,6 +790,10 @@
     </article>
   </section>
 
+  <!-- ===================== CV ===================== -->
+  <!-- le CV est rangé dans images/infos/ (même dossier que la photo de profil) -->
+  <p class="cv"><a href="images/infos/CV_ORNELLA_ANTONY.pdf" download target="_blank" rel="noopener">→ <span class="u">télécharger CV</span></a></p>
+
   <!-- ===================== CRÉDITS TYPOGRAPHIQUES ===================== -->
   <!-- Remplace chaque href="#" par l'adresse de la page de la typo -->
   <footer class="credits" aria-label="Crédits typographiques">
@@ -764,16 +803,18 @@
     <p><span class="u">Velvelyne</span> de Mariel Nils, Manon Van der Borght et al.,</p>
     <p><span class="u">DinDong</span> de Peter Wiegel,</p>
     <p><span class="u">Dr Krapka Round</span> de Dmitry Rastvortsev</p>
-    <p><span>...</p>
-    <p><span>Site développé avec l'aide de Claude.ai</p>
+    <p>...</p>
+    <p>Site développé avec l'aide de Claude.ai</p>
   </footer>
 
 </main>
 
-<div class="scrollbar fx" aria-hidden="true">
-  <div class="chevron-top"></div>
-  <div class="line"></div>
-  <div class="chevron-bottom"></div>
+<div class="scrollbar fx">
+  <div class="chevron-top" aria-hidden="true"></div>
+  <div class="line" aria-hidden="true"></div>
+  <div class="chevron-bottom" aria-hidden="true"></div>
+  <button class="sb-btn sb-up" type="button" aria-label="Remonter"></button>
+  <button class="sb-btn sb-down" type="button" aria-label="Descendre"></button>
 </div>
 
 <div class="diag-arrow fx" aria-hidden="true">
@@ -905,6 +946,19 @@
     document.addEventListener('keydown', e => { if(e.key === 'Escape') setMenu(false); });
     window.addEventListener('pageshow', () => setMenu(false));
   })();
+
+  // ---------- FLÈCHE MARRON / VERTE : un clic fait défiler d'un bloc ----------
+  // (paragraphe, formation, expérience, CV, crédits) — comme la liste de projets de l'accueil
+  function scrollOneBlock(dir){
+    const anchor = window.innerHeight * 0.2;       // les blocs s'arrêtent à 20 % du haut de l'écran
+    const blocks = document.querySelectorAll('.lead, .portrait, .story > p, .missions.is-open, .section-title, .school, .f-row, .exp, .cv, .credits');
+    const tops = Array.from(blocks).map(el => el.getBoundingClientRect().top - anchor);
+    const delta = dir > 0 ? tops.find(v => v > 8) : tops.filter(v => v < -8).pop();
+    if(delta !== undefined) window.scrollBy({ top:delta, behavior:'smooth' });
+    else window.scrollTo({ top: dir > 0 ? document.documentElement.scrollHeight : 0, behavior:'smooth' });
+  }
+  document.querySelector('.sb-up').addEventListener('click', () => scrollOneBlock(-1));
+  document.querySelector('.sb-down').addEventListener('click', () => scrollOneBlock(1));
 </script>
 
 </body>
